@@ -1,6 +1,7 @@
 #include <iostream>
 #include <algorithm>
 #include <vector>
+#include <queue>
 
 using namespace std;
 
@@ -16,7 +17,7 @@ public:
 class comp{
 public:
     bool operator()(const Interval &a, const Interval &b){
-        return a.end < b.end;
+        return a.start == b.start? a.end < b.end : a.start < b.start;
     }
 };
  
@@ -29,15 +30,16 @@ public:
     int countOfAirplanes(vector<Interval> &airplanes) {
         // write your code here
         sort(airplanes.begin(), airplanes.end(), comp());
-        int dp = 1;
-        for(int i = 1; i < airplanes.size(); i++){
-			Interval target(airplanes[i].start, airplanes[i].start);
-            auto iter = lower_bound(airplanes.begin(), airplanes.begin() + i, 
-									target,  comp());
-            int gap = airplanes.begin() + i - iter + 1;
-            dp = max(dp, gap);
-        }
-        return dp;
+		priority_queue<int, vector<int>, greater<int>> min_heap;
+		int res = 0;
+		for(auto ele : airplanes){
+			min_heap.push(ele.end);
+			while(min_heap.top() < ele.start){
+				min_heap.pop();
+			}
+			if(res < min_heap.size())	res = min_heap.size();
+		}
+		return res;
     }
 };
 
